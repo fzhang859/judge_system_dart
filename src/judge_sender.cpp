@@ -9,6 +9,72 @@
 
 #include <iostream>
 
+namespace
+{
+    struct DartStatusJumpProbability
+    {
+        int opened_to_closed_percent = 1;
+        int opened_to_switching_percent = 5;
+
+        int closed_to_opened_percent = 1;
+        int closed_to_switching_percent = 5;
+
+        int switching_to_opened_percent = 20;
+        int switching_to_closed_percent = 20;
+    };
+
+    uint8_t apply_dart_opening_status_jump(uint8_t actual_status, const DartStatusJumpProbability &probability)
+    {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        static std::uniform_int_distribution<int> dis(1, 100);
+
+        const int roll = dis(gen);
+
+        switch (actual_status)
+        {
+        case 0:
+            if (roll <= probability.opened_to_closed_percent)
+            {
+                return 1;
+            }
+            if (roll <= probability.opened_to_closed_percent +
+                            probability.opened_to_switching_percent)
+            {
+                return 2;
+            }
+            return actual_status;
+
+        case 1:
+            if (roll <= probability.closed_to_opened_percent)
+            {
+                return 0;
+            }
+            if (roll <= probability.closed_to_opened_percent + probability.closed_to_switching_percent)
+            {
+                return 2;
+            }
+            return actual_status;
+
+        case 2:
+            if (roll <= probability.switching_to_closed_percent)
+            {
+                return 1;
+            }
+            if (roll <= probability.switching_to_closed_percent +
+                            probability.switching_to_opened_percent)
+            {
+                return 0;
+            }
+            return actual_status;
+
+        default:
+            return actual_status;
+        }
+    }
+};
+
+
 /**
  * @brief 发送裁判系统数据
  * @param fd 串口文件描述符
@@ -51,12 +117,12 @@ bool send_judge_system_data(int fd, uint16_t cmd_id, const uint8_t *data, uint16
     }
 
     // 打印发送的数据（调试用）
-    std::cout << "Sent packet: ";
-    for (size_t i = 0; i < packet.size(); ++i)
-    {
-        printf("%02X ", packet[i]);
-    }
-    std::cout << std::endl;
+    // std::cout << "Sent packet: ";
+    // for (size_t i = 0; i < packet.size(); ++i)
+    // {
+    //     printf("%02X ", packet[i]);
+    // }
+    // std::cout << std::endl;
 
     return true;
 }
@@ -113,8 +179,17 @@ bool send_dart_info(int fd, uint8_t dart_remaining_time, uint8_t last_hit_target
  */
 bool send_dart_client_cmd(int fd, uint8_t dart_launch_opening_status, uint16_t target_change_time, uint16_t latest_launch_cmd_time)
 {
+    static const DartStatusJumpProbability probability{
+        1,  // opened_to_closed_percent
+        5,  // opened_to_switching_percent
+        1,  // closed_to_opened_percent
+        5,  // closed_to_switching_percent
+        20, // switching_to_opened_percent
+        20, // switching_to_closed_percent
+    };
+
     dart_client_cmd_t dart_cmd;
-    dart_cmd.dart_launch_opening_status = dart_launch_opening_status;
+    dart_cmd.dart_launch_opening_status = apply_dart_opening_status_jump(dart_launch_opening_status, probability);
     dart_cmd.reserved = 0;
     dart_cmd.target_change_time = target_change_time;
     dart_cmd.latest_launch_cmd_time = latest_launch_cmd_time;

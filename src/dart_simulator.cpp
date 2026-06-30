@@ -143,14 +143,14 @@ void DartSimulator::update_game_phase()
         {
             start_dart_event();
             first_dart_event_triggered_ = true;
-            std::cout << "\n飞镖事件触发! (60秒标记)" << std::endl;
+            std::cout << "\n飞镖事件触发!" << std::endl;
         }
 
         if (!second_dart_event_triggered_ && total_game_seconds >= 45)
         {
             start_dart_event();
             second_dart_event_triggered_ = true;
-            std::cout << "\n飞镖事件触发! (180秒标记)" << std::endl;
+            std::cout << "\n飞镖事件触发!" << std::endl;
         }
 
         if (snapshot_.game_time_remaining == 0)

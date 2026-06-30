@@ -55,14 +55,13 @@ std::vector<uint8_t> pack_judge_system_data(uint16_t cmd_id, const uint8_t *data
 /** @brief 生成dart_info数据包
  * @param
     bit 0-2：
-    最近一次己方飞镖击中的目标，开局默认为 0，1 为击中前哨站，2 为击中
-    基地固定目标，3 为击中基地随机固定目标，4 为击中基地随机移动目标
+    最近一次己方飞镖击中的目标，开局默认为 0，1 为击中前哨站，2 为击中基地固定目标，3 为击中基地随机固定目标，4 为击中基地随机移动目标, 5 为击中基地末端移动目标
     bit 3-5：
     对方最近被击中的目标累计被击中计数，开局默认为 0，至多为 4
-    bit 6-7：
-    飞镖此时选定的击打目标，开局默认或未选定/选定前哨站时为 0，选中基
-    地固定目标为 1，选中基地随机目标为 2，选中基地随机移动目标为3
-    bit 8-15：保留
+    bit 6-8：
+    飞镖此时选定的击打目标，开局默认或未选定/选定前哨站时为 0，选中基地固定目标为 1，选中基地随机目标为 2，选中基地随机移动目标为3, 选中基地末端移动目标为 4
+    bit 9-15：
+    保留
  * @return 飞镖发射口状态信息
  */
 uint16_t generate_dart_info(uint8_t last_hit_target, uint8_t opponent_hit_count, uint8_t selected_target)
@@ -76,7 +75,7 @@ uint16_t generate_dart_info(uint8_t last_hit_target, uint8_t opponent_hit_count,
     dart_info |= ((opponent_hit_count & 0x07) << 3); // 取低3位并左移3位
 
     // 设置飞镖此时选定的击打目标
-    dart_info |= ((selected_target & 0x03) << 6); // 取低2位并左移6位
+    dart_info |= ((selected_target & 0x07) << 6); // 取低3位并左移6位
 
     return dart_info;
 }

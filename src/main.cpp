@@ -210,8 +210,7 @@ int main(int argc, char **argv)
                 if (dart_info_elapsed >= 1)
                 {
                     last_dart_info_update_time = current_time;
-                    send_dart_info(fd, snapshot.dart_remaining_time, snapshot.last_hit_target, snapshot.opponent_hit_count,
-                                   snapshot.selected_target);
+                    send_dart_info(fd, snapshot.dart_remaining_time, snapshot.last_hit_target, snapshot.opponent_hit_count, snapshot.selected_target);
                 }
 
                 const auto dart_cmd_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -219,14 +218,11 @@ int main(int argc, char **argv)
                 if (dart_cmd_elapsed >= 333)
                 {
                     last_dart_client_cmd_update_time = current_time;
-                    send_dart_client_cmd(fd, snapshot.dart_opening_status, snapshot.target_change_time,
-                                         snapshot.latest_launch_cmd_time);
+                    send_dart_client_cmd(fd, snapshot.dart_opening_status, snapshot.target_change_time, snapshot.latest_launch_cmd_time);
                 }
 
                 print_game_status(snapshot.game_progress, snapshot.game_time_remaining);
-                print_dart_status(snapshot.dart_opening_status, snapshot.dart_remaining_time,
-                                  snapshot.latest_launch_cmd_time, snapshot.last_hit_target,
-                                  snapshot.opponent_hit_count, snapshot.selected_target);
+                print_dart_status(snapshot.dart_opening_status, snapshot.dart_remaining_time, snapshot.latest_launch_cmd_time, snapshot.last_hit_target, snapshot.opponent_hit_count, snapshot.selected_target);
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
